@@ -1,8 +1,71 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sortedcontainers import SortedSet
+
+
+class Itemset:
+    def __init__(self, itemset: SortedSet, sup: float):
+        self.items = itemset
+        self.sup = sup
+    
+    def __str__(self):
+        return str(self.items)
+    
+    def __repr__(self):
+        return repr(self.items)
+
 class Apriori :
-    @staticmethod
-    def Prepare_data(Data_path,Min_Sup): ##the Data file [T-ID , Item]
+
+    def __init__(self, file_path, min_sup):
+        self.data = self.Prepare_data(file_path, min_sup)
+        self.min_sup = min_sup
+
+    def run(self):
+        self.freq_sets = {}
+        self.itemsets = {}
+        l = SortedSet()
+        for tran in self.data:
+            for item in tran:
+                if item in l:
+                    continue
+                itemset = SortedSet([item])
+                sup = self.Sup(itemset)
+                itemsets = self.itemsets.get("C1", [])
+                itemsets.append(Itemset(itemset, sup))
+                self.itemsets["C1"] = itemsets
+                if sup >= self.min_sup:
+                    itemsets = self.freq_sets.get("L1", [])
+                    itemsets.append(Itemset(itemset, sup))
+                    self.freq_sets["L1"] = itemsets
+                    l.add(item)
+        l = [SortedSet(x) for x in l]
+        self.generate_itemsets(self.join(l), 2)
+    
+    def generate_itemsets(self, data, level):
+        if not data:
+            return
+        l = []
+        for itemset in data:
+            sup = self.Sup(itemset)
+            itemsets = self.itemsets.get(f"C{level}", [])
+            itemsets.append(Itemset(itemset, sup))
+            self.itemsets[f"C{level}"] = itemsets
+            if sup >= self.min_sup:
+                itemsets = self.freq_sets.get(f"L{level}", [])
+                itemsets.append(Itemset(itemset, sup))
+                self.freq_sets[f"L{level}"] = itemsets
+                l.append(itemset)
+        self.generate_itemsets(self.join(l), level + 1)
+
+    def join(self, itemsets: list[SortedSet]):
+        joined = []
+        for i in range(len(itemsets)):
+            for j in range(i + 1, len(itemsets)):
+                if itemsets[i][:-1] == itemsets[j][:-1]:
+                    joined.append(itemsets[i].union(itemsets[j]))
+        return joined
+
+    def Prepare_data(self, Data_path,Min_Sup): ##the Data file [T-ID , Item]
         if str(Data_path).endswith("xlsx"):
             df=pd.read_excel(Data_path)
         elif str(Data_path).endswith("csv"):
@@ -12,15 +75,15 @@ class Apriori :
         x=list(df['items'])
         l=[]
         for i in x:
-            l.append(set(str(i).split(',')))
+            l.append(SortedSet(str(i).split(',')))
         return l 
-    def Sup(L:list ,item ):
+    def Sup(self, item):
         cnt=0
-        for tran in L :
+        for tran in self.data:
             if item .issubset(tran):
                 cnt+=1
         return cnt        
-    def Conf(L:list,item:str):
+    def Conf(self, L:list,item:str):
         cnt1=0
         cnt2=0
         for tran in L :
@@ -55,6 +118,16 @@ class Apriori :
                 freq_sets_L2[key]=value
         return freq_sets_L2 
     
-    def visualize(freq_sets:map):
-        plt.bar(freq_sets)
-        plt.show()
+    def visualize(self):
+        for _, data in self.freq_sets.items():
+            df = pd.DataFrame({
+                "itemset": [str(d.items) for d in data],
+                "sup": [d.sup for d in data]
+            })
+            plt.figure(figsize=(12, 6))
+            plt.bar(df['itemset'], df['sup'])
+            plt.xlabel("Itemset")
+            plt.ylabel("Support")
+            plt.title("Frequent Itemsets")
+            plt.xticks(rotation=45)
+            plt.show()
