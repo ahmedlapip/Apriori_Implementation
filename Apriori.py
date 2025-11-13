@@ -74,8 +74,7 @@ class Apriori :
         new_left = SortedSet(left)
         new_right = SortedSet(right)
         new_left.add(itemset.items[level])
-        if itemset.items[level] in new_right:
-            new_right.remove(itemset.items[level])
+        new_right.remove(itemset.items[level])
         self.generate_rules(itemset, new_left, new_right, level + 1)
     
     def generate_itemsets(self, data, level):

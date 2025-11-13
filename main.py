@@ -2,6 +2,7 @@ from Apriori import Apriori
 import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
+import os
 
 def visualize():
 
@@ -60,18 +61,19 @@ min_sup = st.slider("Select minimum support", min_value=1, max_value=10, step=1,
 min_conf = st.slider("Select minimum confidence", min_value=0.0, max_value=1.0, step=0.1, value=0.5)
 
 if uploaded_file is not None:
-    if uploaded_file.name.endswith("xlsx"):
-        df=pd.read_excel(uploaded_file)
+    file_path = os.path.join("./data", uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    if file_path.endswith("xlsx"):
+        df=pd.read_excel(file_path)
     else:
-        df =pd.read_csv(uploaded_file)
+        df =pd.read_csv(file_path)
     st.dataframe(df)
 
     if st.button("Run Apriori Algorithm"):
-        ap = Apriori(uploaded_file.name, min_sup, min_conf)
+        ap = Apriori(file_path, min_sup, min_conf)
         ap.run()
         visualize()
         st.balloons()
 else:
     st.info("Please upload a CSV or XLSX file.")
-
-# ap.visualize()
