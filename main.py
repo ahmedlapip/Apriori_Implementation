@@ -6,43 +6,12 @@ import os
 
 def visualize():
 
-    i = 0
-    for level, data in ap.freq_sets.items():
+    for i in range(len(ap.itemsets)):
+        level = f"C{i + 1}"
+        data = ap.itemsets[level]
         df = pd.DataFrame({
             "itemset": [str(d) for d in data],
             "sup": [d.sup_count for d in data]
-        })
-
-        fig, ax = plt.subplots(figsize=(8, 4))
-        ax.bar(df['itemset'], df['sup'])
-        ax.set_xlabel("Itemset")
-        ax.set_ylabel("Support")
-        ax.set_title(f"Frequent Itemsets ({level})")
-        plt.xticks(rotation=45)
-
-        st.pyplot(fig)
-
-        rows = []
-        for rule in ap.rules[i]:
-            rows.append({
-                "Itemset": str(rule.itemset),
-                "Rule": str(rule),
-                "Support Count": rule.itemset.sup_count,
-                "Support": rule.itemset.sup,
-                "Confidence": rule.conf,
-                "Lift": rule.lift,
-                "Strong": rule.is_strong(min_conf),
-                "Dependency": "Independent" if rule.lift == 1 else "Positive" if rule.lift > 1 else "Negative"
-            })
-
-        rules_df = pd.DataFrame(rows)
-        st.dataframe(rules_df)
-        i += 1
-
-    for level, data in ap.itemsets.items():
-        df = pd.DataFrame({
-            "itemset": [str(d) for d in data],
-            "sup": [d.sup for d in data]
         })
 
         fig, ax = plt.subplots(figsize=(8, 4))
@@ -53,6 +22,41 @@ def visualize():
         plt.xticks(rotation=45)
 
         st.pyplot(fig)
+
+        level = f"L{i + 1}"
+        data = ap.freq_sets.get(level)
+
+        if data:
+            df = pd.DataFrame({
+                "itemset": [str(d) for d in data],
+                "sup": [d.sup_count for d in data]
+            })
+
+            fig, ax = plt.subplots(figsize=(8, 4))
+            ax.bar(df['itemset'], df['sup'])
+            ax.set_xlabel("Itemset")
+            ax.set_ylabel("Support")
+            ax.set_title(f"Frequent Itemsets ({level})")
+            plt.xticks(rotation=45)
+
+            st.pyplot(fig)
+
+            rows = []
+            for rule in ap.rules[i]:
+                rows.append({
+                    "Itemset": str(rule.itemset),
+                    "Rule": str(rule),
+                    "Support Count": rule.itemset.sup_count,
+                    "Support": rule.itemset.sup,
+                    "Confidence": rule.conf,
+                    "Lift": rule.lift,
+                    "Strong": rule.is_strong(min_conf),
+                    "Dependency": "Independent" if rule.lift == 1 else "Positive" if rule.lift > 1 else "Negative"
+                })
+            rules_df = pd.DataFrame(rows)
+            st.dataframe(rules_df)
+        else:
+            st.info("No frequent itemsets found.")
 
 st.title("Frequent Patterns Mining Using Apriori Algortihm")
 
