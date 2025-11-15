@@ -60,7 +60,7 @@ class Apriori :
                     itemsets.append(Itemset(itemset, sup / len(self.data), sup))
                     self.freq_sets["L1"] = itemsets
                     l.add(item)
-        l = [SortedSet(x) for x in l]
+        l = [SortedSet([x]) for x in l]
         self.generate_itemsets(self.join(l), 2)
 
     def generate_rules(self, itemset: Itemset, left: SortedSet, right: SortedSet, level: int):

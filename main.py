@@ -58,7 +58,7 @@ def visualize():
         else:
             st.info("No frequent itemsets found.")
 
-st.title("Frequent Patterns Mining Using Apriori Algortihm")
+st.title("Frequent Patterns Mining Using Apriori Algorithm")
 
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv", "xlsx"])
 min_sup = st.slider("Select minimum support", min_value=1, max_value=10, step=1, value=2)
