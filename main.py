@@ -16,13 +16,12 @@ def visualize():
 
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.bar(df['itemset'], df['sup'])
+        plt.xticks(rotation=90, fontsize=max(6, min(12, 200 // len(df['itemset']))))
         ax.set_xlabel("Itemset")
         ax.set_ylabel("Support")
         ax.set_title(f"Itemsets ({level})")
-        plt.xticks(rotation=45)
-
         st.pyplot(fig)
-
+        
         level = f"L{i + 1}"
         data = ap.freq_sets.get(level)
 
@@ -37,7 +36,7 @@ def visualize():
             ax.set_xlabel("Itemset")
             ax.set_ylabel("Support")
             ax.set_title(f"Frequent Itemsets ({level})")
-            plt.xticks(rotation=45)
+            plt.xticks(rotation=90, fontsize=max(6, min(12, 200 // len(df['itemset']))))
 
             st.pyplot(fig)
 
